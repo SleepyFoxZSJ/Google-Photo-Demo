@@ -25,7 +25,7 @@ public class Upload {
         try {
             PhotosLibraryClient client = PhotoLibraryClientFactory.getClient();
             File folder = new File("./test");
-            upload(client,folder);
+            upload(client,null,folder);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -34,9 +34,10 @@ public class Upload {
     /**
      * 上传文件
      * @param client Photo请求客户端
+     * @param albumId 上传的目标影集ID
      * @param parentFile 文件夹，文件夹内的文件就是上传的内容
      */
-    public static void upload(PhotosLibraryClient client,File parentFile) throws FileNotFoundException {
+    public static void upload(PhotosLibraryClient client,String albumId,File parentFile) throws FileNotFoundException {
         // 用于上传的内容，最多不能超过50个
         List<List<NewMediaItem>> newMediaItemList = new ArrayList<>();
         newMediaItemList.add(new ArrayList<>());
@@ -74,7 +75,12 @@ public class Upload {
         for (List<NewMediaItem> newMediaItems : newMediaItemList) {
             executor.submit(()->{
                 // 在Google Photo创建媒体数据
-                BatchCreateMediaItemsRequest request = BatchCreateMediaItemsRequest.newBuilder().addAllNewMediaItems(newMediaItems).build();
+                BatchCreateMediaItemsRequest.Builder builder = BatchCreateMediaItemsRequest.newBuilder();
+                if (albumId!=null) {
+                    builder.setAlbumId(albumId);
+                }
+                builder.addAllNewMediaItems(newMediaItems);
+                BatchCreateMediaItemsRequest request = builder.build();
                 BatchCreateMediaItemsResponse createResponse = client.batchCreateMediaItems(request);
                 System.out.println(createResponse.toString());
             });
