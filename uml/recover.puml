@@ -19,6 +19,7 @@ frame --> frame:相框端维护token有效性
 frame -> cloud:请求云端备份文件夹内数据
 frame <-- cloud:返回云端备份数据信息，内含下载链接
 frame -> cloud:相框端策略下载相关媒体文件到本地
+frame <-- cloud:下载的媒体文件
 
 alt 恢复备份失败
 frame <-- cloud:因不可控因素，导致部分文件下载失败
