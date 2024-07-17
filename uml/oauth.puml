@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor 手机端 as phone
+participant 服务端 as service
+'participant 相框端 as frame
+participant Google相册 as cloud
+
+phone -> cloud:请求获取相册授权
+phone <-- cloud:授权结果
+
+alt 授权失败
+phone <-- cloud:授权失败
+else 授权成功
+phone <-- cloud:授权成功，返回serverAuthCode
+phone -> service:提供serverAuthCode
+service -> cloud:根据serverAuthCode请求换取凭证
+service <-- cloud:返回凭证，包含accessToken、refreshToken
+service --> service:维护token有效性
+end
+
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor 手机端 as phone
+participant 相框端 as frame
+participant 服务端 as service
+participant Google相册 as cloud
+
+frame -> service:获取申请者的备份信息
+alt 获取失败，服务端token因不可控因素失效
+phone <- service:通知手机端重新授权
+else 获取成功
+end
+frame <-- service:返回申请者google凭证信息以及当前相框云端备份文件夹ID
+frame --> frame:相框端维护token有效性
+
+frame -> cloud:请求云端备份文件夹内数据
+frame <-- cloud:返回云端备份数据信息，内含下载链接
+frame -> cloud:相框端策略下载相关媒体文件到本地
+
+alt 恢复备份失败
+frame <-- cloud:因不可控因素，导致部分文件下载失败
+frame -> cloud:相框设计策略重新下载
+else 恢复备份成功
+end
+
+@enduml

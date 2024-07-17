@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor 手机端 as phone
+participant 相框端 as frame
+participant 服务端 as service
+participant Google相册 as cloud
+
+phone -> service:申请备份
+frame <- service:通知相框申请信息
+frame --> service:同意备份
+phone <-- service:告知手机端，相框同意备份
+
+frame -> service:获取申请者的备份信息
+alt 获取失败，服务端token因不可控因素失效
+phone <- service:通知手机端重新授权
+else 获取成功
+end
+frame <-- service:返回申请者google凭证信息以及当前相框云端备份文件夹ID
+frame --> frame:相框端维护token有效性
+
+alt 申请者未备份过当前相框，即不存在云端备份文件夹
+frame -> cloud:创建云端备份文件夹
+frame <-- cloud:创建成功，返回云端备份文件夹ID
+frame -> service:告知服务端申请者、相框以及云端备份文件夹ID关系
+else 申请者备份过当前相框，即存在云端备份文件夹
+end
+
+frame -> cloud:向云端备份文件夹上传本地媒体数据
+frame <-- cloud:返回云端备份文件ID，相框端可考虑同本地数据进行绑定
+
+alt 备份失败
+frame <-- cloud:因不可控因素，导致部分文件上传失败
+frame -> cloud:相框设计策略重新备份
+else 备份成功
+frame -> service:告知服务端备份成功
+phone <- service:通知手机端备份成功
+end
+
+@enduml
